@@ -1,14 +1,17 @@
 #include "menu.h"
 #include <conio.h>
 #include <windows.h>
+#include <map>
 
 Menu::Menu(){
+    system("title Password-Manager");
     passwds.open("passwd.xnec3");
     init();
     passwds.close();
 }
 
 void Menu::init(){
+
     mng.clear();
     std::string user,password,url,tags,aux;
     int tagsx,i;
@@ -21,7 +24,6 @@ void Menu::init(){
         std::getline(passwds,url);
         passwds>>std::ws;
         std::getline(passwds,tags);
-        std::cout<<"HERE:"<<'\n'<<'\n'<<user<<"\n"<<password<<"\n"<<url<<'\n';
         passwds>>std::ws;
         mng.add_entry(Entry(Criptor::decrypt(user),Criptor::decrypt(password),Criptor::decrypt(url)));
         tagsx=i=0;
@@ -35,6 +37,7 @@ void Menu::init(){
                 aux.push_back(tags[i]);
         aux.clear();
     }
+
 }
 
 void Menu::refresh(){
@@ -62,9 +65,9 @@ int Menu::display(){
     int aux;
     system("cls");
     std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
-    std::cout<<"1.Add entry\n\n2.Remove Entry\n\n3.Change Entry\n\n4.See all entries\n\n5.See entries , sorted by tags\n\n6.See entries by tag\n\nOption : ";
+    std::cout<<"1.Add entry\n\n2.Remove Entry\n\n3.Change Entry\n\n4.See all entries\n\n5.See entries , sorted by tags\n\n6.See entries by tag\n\n7.Exit\n\nOption : ";
     std::cin>>aux;
-    if(aux<1 || aux>6)
+    if(aux<1 || aux>7)
         return -1;
     return aux;
 }
@@ -75,6 +78,7 @@ void Menu::handle(){
         while(option == -1)
             option=display();
         std::cin.ignore();
+        opt1:
         if(option==1){
             std::string usr,pswd,url,tag;
             char ch;
@@ -122,6 +126,80 @@ void Menu::handle(){
             std::getline(std::cin,user);
             mng.remove_entry(Entry(user,"",url));
             refresh();
+        }
+        if(option==3){
+            std::string url,user;
+            system("cls");
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            std::cout<<"Url : ";
+            std::getline(std::cin,url);
+            system("cls");
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            std::cout<<"Username : ";
+            std::getline(std::cin,user);
+            mng.remove_entry(Entry(user,"",url));
+            option=1;
+            goto opt1;
+        }
+        if(option==4){
+            int nr=0;
+            system("cls");
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            for(int i=0;i<mng.entries().size();i++){
+                std::cout<<"Entry # "<<i+1<<std::endl;
+                std::cout<<"\tUsername : "<<mng.entries()[i].username()<<std::endl<<"\tPassword : "<<mng.entries()[i].password();
+                std::cout<<std::endl<<"\tUrl : "<<mng.entries()[i].url()<<'\n';
+            }
+            std::cout<<"Press any keys to continue";
+            _getch();
+        }
+        if(option==5){
+            system("cls");
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            std::map<std::string,std::vector<Entry> >mp;
+            for(int i=0;i<mng.entries().size();i++){
+                if(mng.entries()[i].tags().size()==0)
+                    mp[""].push_back(mng.entries()[i]);
+                for(int j=0;j<mng.entries()[i].tags().size();j++)
+                    mp[mng.entries()[i].tags()[j]].push_back(mng.entries()[i]);
+            }
+            for(auto it:mp){
+                std::cout<<'\n'<<"TAG : "<<it.first<<'\n';
+                for(auto aux:it.second){
+                    std::cout<<"\tUsername : "<<aux.username()<<'\n';
+                    std::cout<<"\tPassword : "<<aux.password()<<'\n';
+                    std::cout<<"\tUrl : "<<aux.url()<<'\n'<<'\n';
+                }
+            }
+            std::cout<<"Press any keys to continue";
+            _getch();
+        }
+        if(option==6){
+            std::string tag;
+            system("cls");
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            std::cout<<"Enter tag name : ";
+            std::getline(std::cin,tag);
+            if(tag==""){
+                system("cls");
+                option=4;
+                goto opt1;
+            }
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            std::cout<<"TAG : "<<tag<<'\n'<<'\n';
+            for(auto it:mng.entries())
+                for(auto it2:it.tags())
+                    if(it2==tag){
+                        std::cout<<"\tUsername : "<<it.username()<<'\n';
+                        std::cout<<"\tPassword : "<<it.password()<<'\n';
+                        std::cout<<"\tUrl : "<<it.url()<<'\n'<<'\n';
+                    }
+            std::cout<<"Press any keys to continue";
+            _getch();
+        }
+        if(option==7){
+            refresh();
+            exit(0);
         }
     }
 }
