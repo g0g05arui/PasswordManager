@@ -14,7 +14,7 @@ int Manager::add_entry(Entry ent){
 
 void Manager::remove_entry(Entry ent){
     for(int i=0;i<_entries.size();i++)
-        if(_entries[i].url()==ent.url()){
+        if(_entries[i].url()==ent.url() && _entries[i].username()==ent.username()){
             _entries.erase(_entries.begin()+i);
             break;
     }

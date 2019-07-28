@@ -74,12 +74,12 @@ void Menu::handle(){
         int option=display();
         while(option == -1)
             option=display();
+        std::cin.ignore();
         if(option==1){
             std::string usr,pswd,url,tag;
             char ch;
             int tags=0;
             system("cls");
-            std::cin.ignore();
             std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
             std::cout<<"Username : ";
             std::getline(std::cin,usr);
@@ -111,7 +111,17 @@ void Menu::handle(){
             refresh();
         }
         if(option==2){
-
+            std::string url,user;
+            system("cls");
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            std::cout<<"Url : ";
+            std::getline(std::cin,url);
+            system("cls");
+            std::cout<<std::string(50,' ')<<"|Password Manager|"<<std::string(3,'\n');
+            std::cout<<"Username : ";
+            std::getline(std::cin,user);
+            mng.remove_entry(Entry(user,"",url));
+            refresh();
         }
     }
 }
